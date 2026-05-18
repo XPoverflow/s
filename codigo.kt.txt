@@ -1,0 +1,53 @@
+data class Pedido(
+    val id: Int,
+    val status: StatusPedido
+)
+
+enum class StatusPedido {
+    NOVO,
+    PROCESSADO,
+    DESCONHECIDO
+}
+
+interface ProcessadorStatus {
+    fun processar(pedido: Pedido)
+}
+
+class NovoPedidoProcessor : ProcessadorStatus {
+    override fun processar(pedido: Pedido) {
+        println("Pedido em processamento: ${pedido.id}")
+        simularProcessamento()
+    }
+
+    private fun simularProcessamento() {
+        Thread.sleep(2000)
+    }
+}
+
+class PedidoProcessadoProcessor : ProcessadorStatus {
+    override fun processar(pedido: Pedido) {
+        println("Pedido já processado: ${pedido.id}")
+    }
+}
+
+class PedidoDesconhecidoProcessor : ProcessadorStatus {
+    override fun processar(pedido: Pedido) {
+        println("Status desconhecido do pedido: ${pedido.id}")
+    }
+}
+
+class PedidoProcessor {
+
+    private val processadores = mapOf(
+        StatusPedido.NOVO to NovoPedidoProcessor(),
+        StatusPedido.PROCESSADO to PedidoProcessadoProcessor(),
+        StatusPedido.DESCONHECIDO to PedidoDesconhecidoProcessor()
+    )
+
+    fun processarPedido(pedido: Pedido) {
+        val processador =
+            processadores[pedido.status] ?: PedidoDesconhecidoProcessor()
+
+        processador.processar(pedido)
+    }
+}
